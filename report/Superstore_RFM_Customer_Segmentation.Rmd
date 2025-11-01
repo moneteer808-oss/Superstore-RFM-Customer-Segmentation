@@ -1,0 +1,248 @@
+---
+title: "RFM Customer Segmentation Report (Superstore Data)"
+author: "Moneteer"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+# About Data Analysis Report
+
+This RMarkdown file contains the report of the data analysis done for the project on RFM (Recency, Frequency, Monetary) Customer Segmentation using Superstore sales data in R. It contains analysis such as data cleaning, computation of RFM metrics, customer segmentation, visualization, and business insights. The final report was completed on `r Sys.Date()`.
+
+**Data Description:**
+
+This dataset contains detailed sales transactions for a retail "Superstore", including order information, customer details, sales, quantity, discounts, profit, and shipping data. It covers a wide range of customers, products, and regions.
+
+**Data Source:** [Superstore Dataset](https://www.kaggle.com/datasets/vivek468/superstore-dataset-final/data) 
+
+**Disclaimer:**
+
+This dataset is used for educational purposes only. All analyses, results, and insights presented in this report are meant for learning, demonstration, and practice. The original dataset belongs to its respective owners and creators. No commercial use or reproduction of the dataset is intended.
+
+```{r setup, include=FALSE}
+# Global options
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+# Load libraries
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
+library(ggplot2)
+library(knitr)
+```
+
+# 1. Load Data
+
+```{r load-data}
+data_path <- here("data", "superstore.csv")
+superstore <- read_csv(data_path, show_col_types = FALSE) %>% clean_names()
+glimpse(superstore)
+```
+
+# 2. Clean Data
+
+```{r clean-data}
+df <- superstore %>%
+  mutate(order_date = as.Date(order_date, tryFormats = c("%Y-%m-%d", "%m/%d/%Y"))) %>%
+  filter(!is.na(customer_id), !is.na(order_date), !is.na(sales))
+head(df)
+```
+
+# 3. Compute RFM Metrics
+
+```{r compute-rfm}
+analysis_date <- max(df$order_date, na.rm = TRUE) + 1
+rfm_data <- df %>%
+  group_by(customer_id, customer_name) %>%
+  summarise(
+    recency_days = as.integer(analysis_date - max(order_date)),
+    frequency = n_distinct(order_id),
+    monetary = sum(sales, na.rm = TRUE),
+    .groups = "drop"
+  )
+head(rfm_data)
+```
+
+# 4. Assign RFM Scores
+
+```{r assign-scores}
+rfm_data <- rfm_data %>%
+  mutate(
+    R_score = ntile(-recency_days, 5),  # smaller recency = higher score
+    F_score = ntile(frequency, 5),
+    M_score = ntile(monetary, 5),
+    RFM_Score = R_score + F_score + M_score
+  )
+head(rfm_data)
+```
+
+# 5. Customer Segmentation
+
+```{r customer-segmentation}
+rfm_data <- rfm_data %>%
+  mutate(
+    Segment = case_when(
+      RFM_Score >= 13 ~ "Champions",
+      RFM_Score >= 10 ~ "Loyal Customers",
+      RFM_Score >= 7  ~ "Potential Loyalists",
+      RFM_Score >= 4  ~ "Needs Attention",
+      TRUE ~ "At Risk"
+    )
+  )
+
+# View segment count
+table(rfm_data$Segment)
+```
+
+# 6. Summarize Segments
+
+```{r summarize-segments}
+segment_summary <- rfm_data %>%
+  group_by(Segment) %>%
+  summarise(
+    Customers = n(),
+    Avg_Recency = round(mean(recency_days), 1),
+    Avg_Frequency = round(mean(frequency), 1),
+    Avg_Monetary = round(mean(monetary), 2),
+    .groups = "drop"
+  )
+kable(segment_summary)
+```
+
+# 7. Visualize RFM Segments
+
+```{r visualize-segments, fig.width=8, fig.height=5}
+rfm_plot <- ggplot(segment_summary, aes(x = reorder(Segment, -Customers), y = Customers, fill = Segment)) +
+  geom_col() +
+  geom_text(aes(label = Customers), vjust = -0.5, size = 4) + # numbers above bars
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +   # add 10% space on top
+  labs(
+    title = "Customer Segments (RFM Analysis)",
+    x = "Customer Segment",
+    y = "Number of Customers"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+rfm_plot
+```
+
+# 8. Save Outputs
+
+```{r save-outputs}
+# Ensure folders exist
+if(!dir.exists(here("output"))) dir.create(here("output"), recursive = TRUE)
+if(!dir.exists(here("figures"))) dir.create(here("figures"), recursive = TRUE)
+
+# Save CSV files
+write_csv(rfm_data, here("output", "rfm_scores.csv"))
+write_csv(segment_summary, here("output", "rfm_segment_summary.csv"))
+message("RFM results exported to /output folder")
+
+# Save plot
+ggsave(here("figures", "rfm_segment_plot.png"), plot = rfm_plot, width = 8, height = 5)
+message("Plot saved to /figures folder")
+```
+
+# 9. Business Insights
+
+```{r business-insights}
+business_actions <- tibble(
+  Segment = c("Champions", "Loyal Customers", "Potential Loyalists", "Needs Attention", "At Risk"),
+  Description = c(
+    "Recent, frequent, and high spenders",
+    "Frequent and consistent buyers",
+    "Medium RFM score, possible repeat buyers",
+    "Low-medium RFM score, may churn",
+    "Low in all RFM metrics"
+  ),
+  Suggested_Action = c(
+    "Offer loyalty rewards, exclusive deals, VIP treatment",
+    "Encourage reviews, referrals, upsell, cross-sell",
+    "Engage with promotions, targeted campaigns",
+    "Send reactivation campaigns, special offers",
+    "Win-back campaigns, discounts, personalized outreach"
+  )
+)
+kable(business_actions)
+```
+
+# 10. Interactive Customer Segmentation Table
+
+```{r interactive-segmentation-table, echo=FALSE, message=FALSE, warning=FALSE}
+library(DT)
+library(dplyr)
+
+# Load saved segmentation data
+rfm_table <- read_csv(here::here("output", "rfm_customer_segments.csv"))
+
+# Fix encoding (in case of non-UTF-8 characters)
+rfm_table <- rfm_table %>%
+  mutate(across(where(is.character), ~ iconv(.x, from = "latin1", to = "UTF-8", sub = "byte")),
+         monetary = round(monetary, 2)) %>%
+  select(customer_id, customer_name, Segment, recency_days, frequency, monetary, RFM_Score) %>%
+  arrange(desc(RFM_Score))
+
+# Render interactive table
+datatable(
+  rfm_table,
+  options = list(pageLength = 10, autoWidth = TRUE),
+  caption = htmltools::HTML("<b>Interactive Table: Customer Segmentation Details</b>"),
+  escape = FALSE,
+  rownames = FALSE) %>%
+  formatCurrency(columns = "monetary", currency = "$", interval = 3, mark = ",", digits = 2)
+```
+
+# 11. Session Info
+
+```{r session-info}
+sessionInfo()
+```
+
+# Findings and Conclusions
+
+Throughout this project, I analyzed customer behavior using the Superstore sales dataset by applying RFM (Recency, Frequency, Monetary) analysis. Here are the key findings and conclusions:
+
+## 1. Data Exploration
+
+The dataset contains 9,994 transactions across multiple customers, products, and regions. After cleaning, missing values for customer_id, order_date, or sales were removed to ensure accurate RFM computation. Summary statistics show that most customers have moderate frequency and monetary values, with a smaller group contributing high sales.
+
+## 2. RFM Metrics Computation
+
+Recency measures how recently a customer made a purchase; Frequency counts unique orders; Monetary sums total spend. Customers were assigned R, F, and M scores (1–5), then combined into an overall RFM Score (3–15). The distribution of RFM Scores reveals a clear distinction between high-value, loyal customers and low-value or at-risk customers.
+
+## 3. Customer Segmentation
+
+Using RFM Scores, customers were segmented into Champions, Loyal Customers, Potential Loyalists, Needs Attention, and At Risk.
+
+**Segment Summary:**
+
+- **Champions:** 121 customers, very recent, frequent, and high spenders.
+- **Loyal Customers:** 256 customers, frequent and consistent buyers.
+- **Potential Loyalists:** 218 customers, medium RFM scores.
+- **Needs Attention:** 159 customers, low-medium RFM scores, risk of churn.
+- **At Risk:** 39 customers, low in all RFM metrics.
+
+## 4. Visualization Insights
+
+The bar chart of customer segments highlights that most customers are Loyal Customers and Potential Loyalists, with a smaller proportion of Champions and At Risk. Visualization confirms the segmentation results and allows easy identification of high-value versus low-value customers.
+
+## 5. Business Implications
+
+Champions & Loyal Customers should be rewarded with loyalty programs and upsell opportunities. Potential Loyalists can be engaged with targeted campaigns to increase frequency and revenue. Needs Attention & At Risk segments require reactivation campaigns or personalized offers to prevent churn.
+
+## 6. Final Thoughts
+
+This project demonstrates how RFM analysis provides actionable insights from sales data. By segmenting customers based on recency, frequency, and monetary value, businesses can prioritize marketing actions, increase customer retention, and maximize revenue.
+
+For future work, additional data such as product categories, promotions, or seasonal trends could be incorporated to refine segmentation and improve targeting strategies.
+
+## 7. Next Steps
+
+After identifying segments via RFM (Project 1), I built predictive models to prioritize high-value customers (Project 2).
+
+
