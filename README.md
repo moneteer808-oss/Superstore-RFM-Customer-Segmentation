@@ -12,7 +12,15 @@ The goal is to help marketing teams identify high-value customers and optimize e
 ## Outputs
 - `rfm_customer_segments.csv`: Full customer list with RFM scores and segments  
 - `rfm_segment_summary.csv`: Aggregated metrics per segment  
-- `Superstore_RFM_Customer_Segmentation.html`: Interactive HTML report  
+- `Superstore_RFM_Customer_Segmentation.html`: Interactive HTML report
+
+- ## Visual Summary
+
+![Customer Segments (RFM Analysis)](figures/rfm_segment_plot.png)
+
+The visualization above shows how customers are distributed across RFM segments.  
+**Loyal Customers** and **Potential Loyalists** dominate the customer base, indicating strong engagement,  
+while **At Risk** customers may require targeted reactivation campaigns.
 
 ## Data Source
 Dataset used in this project:  
