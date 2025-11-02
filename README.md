@@ -30,10 +30,6 @@ Dataset used in this project:
 > The dataset is owned and originally published by a third party.  
 > This project is created **for educational and portfolio purposes only** and does not claim ownership of the data.
 
-## Live Report
-**View the interactive report:**  
-[![Open RFM Segmentation Report](https://superstorerfmdemo79c818.netlify.app)
-
 
 > **Next Step:** [Predictive Customer Analytics (Project 2)](https://moneteer808-oss.github.io/Superstore-Predictive-Customer-Analytics/)  
 > This follow-up project builds on the segmentation results to predict churn and customer lifetime value (CLV) using machine learning.
