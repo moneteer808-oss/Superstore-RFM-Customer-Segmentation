@@ -31,8 +31,8 @@ Dataset used in this project:
 > This project is created **for educational and portfolio purposes only** and does not claim ownership of the data.
 
 ## Live Report
-View the interactive report here:  
-[Open Interactive Report →](report/Superstore_Predictive_Customer_Analytics.html)
+**View the interactive report:**  
+[Open RFM Segmentation Report →](reports/Superstore_RFM_Customer_Segmentation.html)
 
 > **Next Step:** [Predictive Customer Analytics (Project 2)](https://moneteer808-oss.github.io/Superstore-Predictive-Customer-Analytics/)  
 > This follow-up project builds on the segmentation results to predict churn and customer lifetime value (CLV) using machine learning.
