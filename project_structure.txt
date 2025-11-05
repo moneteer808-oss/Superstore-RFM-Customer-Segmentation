@@ -1,14 +1,18 @@
 .
+├── CNAME
+├── README.md
 ├── Superstore-RFM-Customer-Segmentation.Rproj
 ├── data
 │   └── Superstore.csv
 ├── figures
+│   ├── rfm_scatter_recency_monetary.png
 │   └── rfm_segment_plot.png
 ├── output
 │   ├── rfm_customer_segments.csv
 │   ├── rfm_scores.csv
 │   └── rfm_segment_summary.csv
-├── report
+├── project_structure.txt
+├── reports
 │   ├── Superstore_RFM_Customer_Segmentation.Rmd
 │   └── Superstore_RFM_Customer_Segmentation.html
 └── scripts
