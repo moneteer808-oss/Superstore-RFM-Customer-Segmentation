@@ -89,6 +89,60 @@ rfm_plot <- ggplot(segment_summary, aes(x = reorder(Segment, -Customers), y = Cu
 
 rfm_plot
 
+# --- Scatter plot: Recency vs Monetary colored by Segment ---
+
+# Create plot
+
+rfm_scatter <- ggplot(rfm_data, aes(x = recency_days, y = monetary, color = Segment)) +
+  geom_point(alpha = 0.7, size = 3) +
+  scale_y_continuous(labels = scales::dollar_format()) +
+  labs(
+    title = "Customer Value Distribution: Recency vs. Monetary",
+    subtitle = "Color represents customer segment classification",
+    x = "Recency (Days Since Last Purchase)",
+    y = "Total Spend (Monetary Value)",
+    color = "Segment"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    legend.position = "bottom"
+  )
+
+# Display the plot in report
+
+rfm_scatter
+# --- Scatter plot: Recency vs Monetary colored by Segment ---
+
+# Create plot
+
+rfm_scatter <- ggplot(rfm_data, aes(x = recency_days, y = monetary, color = Segment)) +
+geom_point(alpha = 0.7, size = 3) +
+scale_y_continuous(labels = scales::dollar_format()) +
+labs(
+title = "Customer Value Distribution: Recency vs. Monetary",
+subtitle = "Color represents customer segment classification",
+x = "Recency (Days Since Last Purchase)",
+y = "Total Spend (Monetary Value)",
+color = "Segment"
+) +
+theme_minimal(base_size = 13) +
+theme(
+plot.title = element_text(face = "bold", size = 15),
+legend.position = "bottom"
+)
+
+# Display the plot in report
+
+rfm_scatter
+
+# Save the plot into /figures folder
+
+if (!dir.exists(here("figures"))) dir.create(here("figures"), recursive = TRUE)
+ggsave(here("figures", "rfm_scatter_recency_monetary.png"), plot = rfm_scatter, width = 8, height = 6)
+
+
+
 # 8. Save Outputs ----
 
 # Ensure folders exist
@@ -105,7 +159,7 @@ ggsave(here("figures", "rfm_segment_plot.png"), plot = rfm_plot, width = 8, heig
 message("Plot saved to /figures folder")
 
 
-# 9. Business insights ----
+# 9.1 Business insights ----
 business_actions <- tibble(
   Segment = c("Champions", "Loyal Customers", "Potential Loyalists", "Needs Attention", "At Risk"),
   Description = c(
@@ -124,6 +178,45 @@ business_actions <- tibble(
   )
 )
 business_actions
+
+# 9.2 Compute overall stats from the existing rfm_data ----
+
+segment_stats <- rfm_data %>%
+  group_by(Segment) %>%
+  summarise(
+    Customers = n(),
+    Avg_Recency = mean(recency_days),
+    Avg_Frequency = mean(frequency),
+    Avg_Monetary = mean(monetary),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Avg_Monetary))
+
+
+# Identify top-performing and at-risk segments
+
+top_segment <- segment_stats$Segment[1]
+lowest_segment <- segment_stats$Segment[nrow(segment_stats)]
+
+
+# Scatter plot: Recency vs Monetary colored by Segment
+
+ggplot(rfm_data, aes(x = recency_days, y = monetary, color = Segment)) +
+  geom_point(alpha = 0.7, size = 3) +
+  scale_y_continuous(labels = scales::dollar_format()) +
+  labs(
+    title = "Customer Value Distribution: Recency vs. Monetary",
+    subtitle = "Color represents customer segment classification",
+    x = "Recency (Days Since Last Purchase)",
+    y = "Total Spend (Monetary Value)",
+    color = "Segment"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    legend.position = "bottom"
+  )
+# Save the plot into /figures folder
 
 
 # 10. Customer by segments ----
@@ -144,7 +237,6 @@ datatable(
   caption = htmltools::HTML("<b>Interactive Table: Customer Segmentation Details</b>"),
   escape = FALSE
 )
-
 
 # 11. Session info ----
 sessionInfo()
