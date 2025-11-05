@@ -153,4 +153,4 @@ Educational use only. Dataset © original creators.
 **Star this repo** if you found it useful!  
 **Check out Part 2** for the machine learning continuation!
 
-**MExploring data and technology through self-learning - Moneteer**
+**Exploring data and technology through self-learning - Moneteer**
