@@ -6,7 +6,7 @@
 
 A customer segmentation project using RFM (Recency, Frequency, Monetary) analysis to identify high-value customers and create targeted marketing strategies for a retail Superstore.
 
-> **[View Live Report](https://https://superstorerfmdemo79c818.netlify.app)** | **[See Project 2: Predictive Customer Analytics](https://moneteer808-oss.github.io/Superstore-Predictive-Customer-Analytics/)**
+> **[View Live Report](https://superstorerfmdemo79c818.netlify.app)** | **[See Project 2: Predictive Customer Analytics](https://moneteer808-oss.github.io/Superstore-Predictive-Customer-Analytics/)**
 
 ---
 
