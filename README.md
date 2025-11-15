@@ -112,19 +112,13 @@ This analysis enables:
 
 ## What's Next?
 
-### Project 2: Predictive Customer Analytics
+## Related Projects
 
-** [View Repository](https://github.com/moneteer808-oss/Superstore-Predictive-Customer-Analytics)** | ** [Live Report](https://moneteer808-oss.github.io/Superstore-Predictive-Customer-Analytics/)**
+**Next Project:** [Superstore Predictive Customer Analytics](https://github.com/moneteer808-oss/Superstore-Predictive-Customer-Analytics)  
+*Exploring predictive modeling feasibility and strategic pivot*
 
-Building on this RFM foundation, Project 2 adds **machine learning**:
-
-- **CLV Prediction:** Forecast future customer value with XGBoost
-- **Churn Forecasting:** Identify at-risk customers proactively  
-- **Advanced Segmentation:** 9-segment matrix (Value × Retention)
-- **ROI Analysis:** Calculate campaign cost-benefit by segment
-- **Priority Lists:** Auto-generate high-value, at-risk customer lists
-
-**RFM tells you WHO your customers are → ML tells you what they'll DO NEXT**
+**Python Comparison:** [RFM Customer Segmentation - Python](https://github.com/moneteer808-oss/RFM-Customer-Segmentation-Python)  
+*Same analysis implemented in Python for tool comparison*
 
 ---
 
